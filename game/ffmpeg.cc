@@ -187,7 +187,11 @@ void FFmpeg::decodePacket() {
 		if (packetSize < 0) throw std::logic_error("negative packet size?!");
 		if (m_quit || m_seekTarget == m_seekTarget) return;
 		if (packet.stream_index != m_streamId) return;
+#if (LIBAVCODEC_VERSION_INT) < (AV_VERSION_INT(55,0,0))
 		boost::shared_ptr<AVFrame> frame(avcodec_alloc_frame(), &av_free);
+#else
+		boost::shared_ptr<AVFrame> frame(av_frame_alloc(), [](AVFrame* ptr) { av_frame_free(&ptr); });
+#endif
 		int frameFinished = 0;
 		int decodeSize = (m_mediaType == AVMEDIA_TYPE_VIDEO ?
 		  avcodec_decode_video2(m_codecContext, frame.get(), &frameFinished, &packet) :
@@ -196,9 +200,10 @@ void FFmpeg::decodePacket() {
 		packetSize -= decodeSize; // Move forward within the packet
 		if (!frameFinished) continue;
 		// Update current position if timecode is available
-		if (int64_t(frame->pkt_pts) != int64_t(AV_NOPTS_VALUE)) {
-			m_position = double(frame->pkt_pts) * av_q2d(m_formatContext->streams[m_streamId]->time_base)
-			  - double(m_formatContext->start_time) / AV_TIME_BASE;
+		if (frame->pkt_pts != int64_t(AV_NOPTS_VALUE)) {
+			m_position = double(frame->pkt_pts) * av_q2d(m_formatContext->streams[m_streamId]->time_base);
+			if (m_formatContext->start_time != int64_t(AV_NOPTS_VALUE))
+				m_position -= double(m_formatContext->start_time) / AV_TIME_BASE;
 		}
 		if (m_mediaType == AVMEDIA_TYPE_VIDEO) processVideo(frame.get()); else processAudio(frame.get());
 	}

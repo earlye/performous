@@ -1,17 +1,17 @@
 #pragma once
 
-#include <string>
-#include <vector>
-#include <map>
-
-#include "ffmpeg.hh"
-#include "notes.hh"
-#include "pitch.hh"
-#include "util.hh"
 #include <boost/date_time.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <map>
+#include <string>
+#include <vector>
+
+#include "ffmpeg.hh"
 #include "libda/portaudio.hpp"
+#include "notes.hh"
+#include "pitch.hh"
+#include "util.hh"
 
 const unsigned AUDIO_MAX_ANALYZERS = 4;
 
@@ -92,6 +92,8 @@ public:
 	bool isPaused() const;
 	/** Toggle synth playback **/
 	void toggleSynth(Notes const&);
+	/** Toggle center channel suppressor **/
+	void toggleCenterChannelSuppressor();
 	/** Adjust volume level of a single track (used for muting incorrectly played instruments). Range 0.0 to 1.0. **/
 	void streamFade(std::string track, double volume);
 	/** Do a pitch shift - used for guitar whammy bar */
