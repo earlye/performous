@@ -83,7 +83,7 @@ void Songs::reload_internal(fs::path const& parent) {
 						AdditionalFileIndex = i; //tell to which song this should be added
 					}
 				}
-				if(AdditionalFileIndex > 0) { //this means we need to add it to an existing song
+				if(AdditionalFileIndex >= 0) { //this means we need to add it to an existing song
 					m_songs[AdditionalFileIndex]->filenames.insert(m_songs[AdditionalFileIndex]->filenames.begin(), s->filenames[0]);
 					m_songs[AdditionalFileIndex]->reload(false);
 				} else {
