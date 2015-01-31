@@ -55,10 +55,10 @@ SongParser::SongParser(Song& s) try:
 {
 	enum { NONE, TXT, XML, INI, SM } type = NONE;
 	// Read the file, determine the type and do some initial validation checks
-		for (unsigned int i = 0; i < s.filenames.size(); i++) {
+	for (unsigned int songNumber = 0; songNumber < s.filenames.size(); songNumber++) {
 			m_ss.flush();
 			m_linenum = 0;
-			fs::path filename = s.filenames[i];
+			fs::path filename = s.filenames[songNumber];
 			fs::ifstream f(filename, std::ios::binary);
 			if (!f.is_open()) throw SongParserException(s, "Could not open song file", 0);
 			f.seekg(0, std::ios::end);
@@ -73,23 +73,27 @@ SongParser::SongParser(Song& s) try:
 			else if (xmlCheck(data)) type = XML;
 			else throw SongParserException(s, "Does not look like a song file (wrong header)", 1, true);
 			m_ss.write(&data[0], size);
-	// Convert m_ss; filename supplied for possible warning messages
-	convertToUTF8(m_ss, filename.string());
-	// Header already parsed?
-	if (s.loadStatus == Song::HEADER) {
-		if (type == TXT) txtParse();
-		else if (type == INI) midParse();  // INI doesn't contain notes, parse those from MIDI
-		else if (type == XML) xmlParse();
-		else if (type == SM) smParse();
-		finalize();// Do some adjusting to the notes
-		if(!i < s.filenames.size()) s.loadStatus = Song::FULL; //only give it full loadstatus when everything has been parsed correctly
-		return;
+		// Convert m_ss; filename supplied for possible warning messages
+		convertToUTF8(m_ss, filename.string());
+		// Header already parsed?
+		if (s.loadStatus == Song::HEADER) {
+			if (type == TXT) txtParse();
+			else if (type == INI) midParse();  // INI doesn't contain notes, parse those from MIDI
+			else if (type == XML) xmlParse();
+			else if (type == SM) smParse();
+			finalize();// Do some adjusting to the notes
+			if(songNumber == s.filenames.size()) {
+				s.loadStatus = Song::FULL; //only give it full loadstatus when everything has been parsed correctly
+				return;
+			}
+		} else {
+			// Parse only header to speed up loading and conserve memory
+			if (type == TXT) txtParseHeader();
+			else if (type == INI) iniParseHeader();
+			else if (type == XML) xmlParseHeader();
+			else if (type == SM)  smParseHeader();
+		}
 	}
-		// Parse only header to speed up loading and conserve memory
-		if (type == TXT) txtParseHeader();
-		else if (type == INI) iniParseHeader();
-		else if (type == XML) xmlParseHeader();
-		else if (type == SM)  smParseHeader();
 		// Default for preview position if none was specified in header
 		if (s.preview_start != s.preview_start) s.preview_start = (type == INI ? 5.0 : 30.0);  // 5 s for band mode, 30 s for others
 
@@ -97,7 +101,6 @@ SongParser::SongParser(Song& s) try:
 		if (!m_song.midifilename.empty()) midParseHeader();
 
 		s.loadStatus = Song::HEADER;
-	}
 } catch (SongParserException&) {
 	throw;
 } catch (std::runtime_error& e) {

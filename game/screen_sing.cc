@@ -62,6 +62,7 @@ void ScreenSing::enter() {
 	try { m_song->loadNotes(false /* don't ignore errors */); }
 	catch (SongParserException& e) {
 		std::clog << e;
+		gm->dialog(_("Error while loading song!"));
 		gm->activateScreen("Songs");
 	}
 	// Notify about broken tracks
