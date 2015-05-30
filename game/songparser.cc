@@ -82,8 +82,8 @@ SongParser::SongParser(Song& s) try:
 			else if (type == XML) xmlParse();
 			else if (type == SM) smParse();
 			finalize();// Do some adjusting to the notes
-			if(songNumber == s.filenames.size()) {
-				s.loadStatus = Song::FULL; //only give it full loadstatus when everything has been parsed correctly
+			if(songNumber == s.filenames.size() - 1) {
+				s.loadStatus = Song::FULL; //only give it full loadstatus when everything has been parsed correct
 				return;
 			}
 		} else {
@@ -100,7 +100,7 @@ SongParser::SongParser(Song& s) try:
 		guessFiles();
 		if (!m_song.midifilename.empty()) midParseHeader();
 
-		s.loadStatus = Song::HEADER;
+		//s.loadStatus = Song::HEADER;
 } catch (SongParserException&) {
 	throw;
 } catch (std::runtime_error& e) {

@@ -79,7 +79,7 @@ void ScreenSing::enter() {
 		m_menu.add(MenuOption(_("Start"), _("Start performing")).call(std::bind(&ScreenSing::setupVocals, this)));
 		m_duet = ConfigItem(0);
 		if (players == 0) players = 1;  // No mic? We display lyrics anyway
-		if (players > 1) { // Duet toggle
+		if (players > 1 && !m_song->hasControllers()) { // Duet toggle
 			m_duet.addEnum(_("Duet mode"));
 			m_duet.addEnum(_("Normal mode"));
 			m_menu.add(MenuOption("", _("Switch between duet and regular singing mode")).changer(m_duet));
