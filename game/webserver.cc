@@ -58,8 +58,10 @@ WebServer::WebServer(Songs& songs)
 }
 
 WebServer::~WebServer() {
-	m_server->stop();
-	m_serverThread->join();
+	if ( m_server ) {
+		m_server->stop();
+		m_serverThread->join();
+	}
 }
 
 http_server::response WebServer::GETresponse(const http_server::request &request, std::string& content_type) {
