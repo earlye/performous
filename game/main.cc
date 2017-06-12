@@ -162,8 +162,8 @@ void mainLoop(std::string const& songlist) {
 		audio.loadSample("drum snare", findFile("sounds/drum_snare.ogg"));
 		audio.loadSample("drum hi-hat", findFile("sounds/drum_hi-hat.ogg"));
 		audio.loadSample("drum tom1", findFile("sounds/drum_tom1.ogg"));
+		audio.loadSample("drum tom2", findFile("sounds/drum_tom2.ogg"));
 		audio.loadSample("drum cymbal", findFile("sounds/drum_cymbal.ogg"));
-		//audio.loadSample("drum tom2", findFile("sounds/drum_tom2.ogg"));
 		audio.loadSample("guitar fail1", findFile("sounds/guitar_fail1.ogg"));
 		audio.loadSample("guitar fail2", findFile("sounds/guitar_fail2.ogg"));
 		audio.loadSample("guitar fail3", findFile("sounds/guitar_fail3.ogg"));
