@@ -87,6 +87,7 @@ void ScreenSongs::manageEvent(input::NavEvent const& event) {
 		else menuBrowse(-1);
 	}
 	else if (event.menu == input::NAVMENU_A_NEXT) {
+	  std::cout << "NEXT!" << std::endl;
 		if (m_menu.isOpen()) m_menu.move(1);
 		else menuBrowse(1);
 	}
@@ -202,8 +203,16 @@ void ScreenSongs::update() {
 	m_audio.playMusic(music, true, 1.0, pstart);
 	if (song) {
 		fs::path const& background = song->background.empty() ? song->cover : song->background;
-		if (!background.empty()) try { m_songbg.reset(new Surface(background)); } catch (std::exception const&) {}
-		if (!song->video.empty() && config["graphic/video"].b()) m_video.reset(new Video(song->video, song->videoGap));
+		if (!background.empty()) {
+		  try {
+		    m_songbg.reset(new Surface(background));
+		  } catch (std::exception const& e) {
+		    std::cout << "exception:" << e.what() << std::endl;
+		  }
+		}
+		if (!song->video.empty() && config["graphic/video"].b()) {
+		  m_video.reset(new Video(song->video, song->videoGap));
+		}
 	}
 }
 
@@ -322,7 +331,9 @@ void ScreenSongs::draw() {
 		}
 	}
 
-	if (m_jukebox) drawJukebox();
+	if (m_jukebox) {
+	  drawJukebox();
+	}
 	else {
 		// Draw song and order texts
 		theme->song.draw(oss_song.str());
