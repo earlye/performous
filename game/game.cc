@@ -141,3 +141,18 @@ void Game::drawNotifications() {
 		if(m_dialogTimeOut.get() == 0) closeDialog();
 	}
 }
+
+void Game::finished()
+{
+  m_finished = true;
+}
+
+Game::~Game()
+{
+  if (currentScreen) currentScreen->exit();
+}
+
+bool Game::isFinished()
+{
+  return m_finished;
+}

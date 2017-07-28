@@ -12,9 +12,12 @@
 # make -f osx.mk all
 # ```
 
+CC_FILES=$(shell find . -name "*.cc")
+HH_FILES=$(shell find . -name "*.hh")
+
 all : build/performous
 
-build/performous: .cmake
+build/performous: .cmake $(CC_FILES) $(HH_FILES)
 	cd build && make
 
 clean:
