@@ -10,6 +10,7 @@
 #include "i18n.hh"
 #include "layout_singer.hh"
 #include "menu.hh"
+#include "platform.hh"
 #include "screen_players.hh"
 #include "songparser.hh"
 #include "util.hh"
@@ -352,7 +353,7 @@ void ScreenSing::manageEvent(SDL_Event event) {
 	double time = m_audio.getPosition();
 	SDL_Scancode key = event.key.keysym.scancode;
 	// Ctrl combinations that can be used while performing (not when score dialog is displayed)
-	if (event.type == SDL_KEYDOWN && (event.key.keysym.mod & KMOD_LCTRL) && !m_score_window.get()) {
+	if (event.type == SDL_KEYDOWN && (event.key.keysym.mod & Platform::shortcutModifier(false)) && !m_score_window.get()) {
 		if (key == SDL_SCANCODE_C) {
 			m_audio.toggleCenterChannelSuppressor();
 			++config["audio/suppress_center_channel"];
@@ -605,7 +606,7 @@ void ScreenSing::drawMenu() {
 		txt->dimensions.middle(x).center(y);
 		txt->draw(it->getName());
 		if (it->value == &m_vocalTracks[player]) {
-			if(player < analyzers.size()) {
+					if(boost::lexical_cast<size_t>(player) < analyzers.size()) {
 				Color color = MicrophoneColor::get(analyzers[player].getId());
 				ColorTrans c(color);
 				m_player_icon->dimensions.right(x).fixedHeight(0.040).center(y);
@@ -618,7 +619,7 @@ void ScreenSing::drawMenu() {
 		y += step;
 	}
 	if (cur->getComment() != "") {
-		th.comment.dimensions.middle(0).screenBottom(-0.12);
+		th.comment.dimensions.middle(0).screenBottom(-0.08);
 		th.comment.draw(cur->getComment());
 	}
 	m_menu.dimensions.stretch(w, h);
@@ -669,7 +670,8 @@ ScoreWindow::ScoreWindow(Instruments& instruments, Database& database):
 		m_rank = _("No player!");
 	else {
 		// Determine winner
-		ScoreItem winner = *std::min_element(m_database.scores.begin(), m_database.scores.end());  // Note: best score comes first
+		m_database.scores.sort([](ScoreItem i, ScoreItem j) -> bool { return (i.score>j.score); });
+		ScoreItem winner = *std::max_element(m_database.scores.begin(), m_database.scores.end());
 		int topScore = winner.score;
 		// Determine rank
 		if (winner.type == input::DEVTYPE_VOCALS) {
@@ -708,7 +710,7 @@ void ScoreWindow::draw() {
 		double x = spacing * (0.5 + i - 0.5 * m_database.scores.size());
 		m_scoreBar.dimensions.fixedWidth(0.09).middle(x).bottom(0.20);
 		m_scoreBar.draw(score / 10000.0);
-		m_score_text.render(boost::lexical_cast<std::string>(score));
+		m_score_text.render(std::to_string(score));
 		m_score_text.dimensions().middle(x).top(0.24).fixedHeight(0.042);
 		m_score_text.draw();
 		m_score_text.render(p->track_simple);

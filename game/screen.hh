@@ -85,9 +85,9 @@ class Game: public Singleton <Game> {
 	void drawNotifications();
 
 	/// Sets finished to true
-        void finished();
+	void finished();
 	/// Returns finished state
-        bool isFinished();
+	bool isFinished();
 	/// Show performous logo
 	void showLogo(bool show = true) { m_logoAnim.setTarget(show ? 1.0 : 0.0); }
 	/// Draw the logo

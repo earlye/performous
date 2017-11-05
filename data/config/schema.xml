@@ -240,6 +240,14 @@ to save the current settings to XML.
 		<short>Suggested latency</short>
 		<long>This is a hint for the audio engine about the desired latency. Set this as low as possible while retaining clear audio playback. Requires restart.</long>
 	</entry>
+	<entry name="audio/backend" type="int" value="1337">
+		<limits>
+		<enum>Auto</enum>
+		<!-- enum options will be added dynamically according to detected interfaces. -->
+		</limits>
+		<short>Audio Backend</short>
+		<long>Configure which audio backend to use; not all backends will be supported on all platforms.</long>
+	</entry>
 	<entry name="audio/video_delay" type="float" value="0.06">
 		<ui unit=" ms" multiplier="1000" />
 		<limits min="-0.5" max="0.5" step="0.01" />
@@ -310,8 +318,19 @@ to save the current settings to XML.
 		<short>Song folders</short>
 		<long>Where to recursively look for songs. DATADIR at the beginning means all Performous data folders.</long>
 	</entry>
+	<entry name="paths/showhiddenfolders" type="bool" value = "false">
+		<short>Show hidden folders</short>
+		<long>When true the screen_paths will also show hidden folders</long>
+	</entry>
 	<entry name="paths/system" type="string_list">
 		<short>Base folders for data</short>
 		<long>System defaults are included automatically. Additional paths can be added here.</long>
+	</entry>
+	<!-- Song ordering -->
+	<entry name="songs/sort-order" type="int" value="0" hidden="true">
+		<ui unit=" pixels" />
+		<limits min="0" max="6" step="1" />
+		<short>Sort order</short>
+		<long>Currently active sort order</long>
 	</entry>
 </performous>

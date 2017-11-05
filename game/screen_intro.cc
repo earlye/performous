@@ -5,10 +5,12 @@
 #include "audio.hh"
 #include "i18n.hh"
 #include "controllers.hh"
+#include "platform.hh"
 #include "theme.hh"
 #include "menu.hh"
 #include "xtime.hh"
 
+extern const double m_pi;
 
 ScreenIntro::ScreenIntro(std::string const& name, Audio& audio): Screen(name), m_audio(audio), m_first(true) {
 }
@@ -65,10 +67,11 @@ void ScreenIntro::manageEvent(SDL_Event event) {
 		// These are only available in config menu
 		int key = event.key.keysym.scancode;
 		uint16_t modifier = event.key.keysym.mod;
-		if (key == SDL_SCANCODE_R && modifier & KMOD_CTRL && m_menu.current().value) {
+		if (key == SDL_SCANCODE_R && modifier & Platform::shortcutModifier() && m_menu.current().value) {
 			m_menu.current().value->reset(modifier & KMOD_ALT);
-		} else if (key == SDL_SCANCODE_S && modifier & KMOD_CTRL) {
-			writeConfig(modifier & KMOD_ALT);
+		}
+		else if (key == SDL_SCANCODE_S && modifier & Platform::shortcutModifier()) {
+			writeConfig(m_audio, modifier & KMOD_ALT);
 			Game::getSingletonPtr()->flashMessage((modifier & KMOD_ALT)
 				? _("Settings saved as system defaults.") : _("Settings saved."));
 		}
@@ -78,13 +81,13 @@ void ScreenIntro::manageEvent(SDL_Event event) {
 void ScreenIntro::draw_menu_options() {
 	// Variables used for positioning and other stuff
 	double wcounter = 0;
-	const size_t showopts = 4; // Show at most 4 options simultaneously
+	const size_t showopts = 5; // Show at most 5 options simultaneously
 	const float x = -0.35;
 	const float start_y = -0.1;
 	const float sel_margin = 0.03;
 	const MenuOptions opts = m_menu.getOptions();
 	double submenuanim = 1.0 - std::min(1.0, std::abs(m_submenuAnim.get()-m_menu.getSubmenuLevel()));
-	theme->back_h.dimensions.fixedHeight(0.065f);
+	theme->back_h.dimensions.fixedHeight(0.038f);
 	theme->back_h.dimensions.stretch(m_menu.dimensions.w(), theme->back_h.dimensions.h());
 	// Determine from which item to start
 	int start_i = std::min((int)m_menu.curIndex() - 1, (int)opts.size() - (int)showopts
@@ -101,19 +104,19 @@ void ScreenIntro::draw_menu_options() {
 			// Animate selection higlight moving
 			double selanim = m_selAnim.get() - start_i;
 			if (selanim < 0) selanim = 0;
-			theme->back_h.dimensions.left(x - sel_margin).center(start_y + selanim*0.08);
+			theme->back_h.dimensions.left(x - sel_margin).center(start_y + selanim*0.065);
 			theme->back_h.draw();
 			// Draw the text, dim if option not available
 			{
 				ColorTrans c(Color::alpha(opt.isActive() ? 1.0 : 0.5));
-				theme->option_selected.dimensions.left(x).center(start_y + ii*0.08);
+				theme->option_selected.dimensions.left(x).center(start_y + ii*0.065);
 				theme->option_selected.draw(opt.getName());
 			}
 			wcounter = std::max(wcounter, theme->option_selected.w() + 2 * sel_margin); // Calculate the widest entry
 			// If this is a config item, show the value below
 			if (opt.type == MenuOption::CHANGE_VALUE) {
 				++ii; // Use a slot for the value
-				theme->option_selected.dimensions.left(x + sel_margin).center(-0.1 + (selanim+1)*0.08);
+				theme->option_selected.dimensions.left(x + sel_margin).center(-0.1 + (selanim+1)*0.065);
 				theme->option_selected.draw("<  " + opt.value->getValue() + "  >");
 			}
 
@@ -122,7 +125,7 @@ void ScreenIntro::draw_menu_options() {
 			std::string title = opt.getName();
 			SvgTxtTheme& txt = getTextObject(title);
 			ColorTrans c(Color::alpha(opt.isActive() ? 1.0 : 0.5));
-			txt.dimensions.left(x).center(start_y + ii*0.08);
+			txt.dimensions.left(x).center(start_y + ii*0.065);
 			txt.draw(title);
 			wcounter = std::max(wcounter, txt.w() + 2 * sel_margin); // Calculate the widest entry
 		}
@@ -134,7 +137,7 @@ void ScreenIntro::draw() {
 	glutil::GLErrorChecker glerror("ScreenIntro::draw()");
 	{
 		float anim = SDL_GetTicks() % 20000 / 20000.0;
-		ColorTrans c(glmath::rotate(2.0 * M_PI * anim, glmath::vec3(1.0, 1.0, 1.0)));
+		ColorTrans c(glmath::rotate(2.0 * m_pi * anim, glmath::vec3(1.0, 1.0, 1.0)));
 		theme->bg.draw();
 	}
 	glerror.check("bg");
@@ -146,7 +149,7 @@ void ScreenIntro::draw() {
 	theme->comment.draw(m_menu.current().getComment());
 	// Key help for config
 	if (m_menu.getSubmenuLevel() > 0) {
-		theme->short_comment_bg.dimensions.stretch(theme->short_comment.w() + 0.08, 0.025);
+		theme->short_comment_bg.dimensions.stretch(theme->short_comment.w() + 0.065, 0.025);
 		theme->short_comment_bg.dimensions.left(-0.54).screenBottom(-0.054);
 		theme->short_comment_bg.draw();
 		theme->short_comment.dimensions.left(-0.48).screenBottom(-0.067);
@@ -195,7 +198,7 @@ void ScreenIntro::draw_webserverNotice() {
 		m_webserverNoticeTimeout.setValue(2);
 	}
 	std::stringstream m_webserverStatusString;
-	if(webserversetting == 1 && m_drawNotice) { //TODO fetch port from config and add it to the string!
+	if(webserversetting == 1 && m_drawNotice) {
 		m_webserverStatusString << _("Webserver active!\n use a webbrowser\nand navigate to localhost:") << config["game/webserver_port"].i();
 		theme->WebserverNotice.draw(m_webserverStatusString.str());
 	}
@@ -213,7 +216,7 @@ std::string ScreenIntro::getIPaddr() {
 	try {
 		boost::asio::io_service netService;
 		boost::asio::ip::udp::resolver resolver(netService);
-		boost::asio::ip::udp::resolver::query query(boost::asio::ip::udp::v4(), "google.com", ""); //it's a bit of a dirty hack, but it works!
+		boost::asio::ip::udp::resolver::query query(boost::asio::ip::udp::v4(), "8.8.8.8", "80");
 		boost::asio::ip::udp::resolver::iterator endpoints = resolver.resolve(query);
 		boost::asio::ip::udp::endpoint ep = *endpoints;
 		boost::asio::ip::udp::socket socket(netService);
@@ -221,8 +224,7 @@ std::string ScreenIntro::getIPaddr() {
 		boost::asio::ip::address addr = socket.local_endpoint().address();
 		return addr.to_string();
 	} catch(std::exception& e) {
-			return "cannot obtain IP";
+		std::string ip = boost::asio::ip::host_name();
+		return ip.empty() ? "localhost" : ip;
 	}
-
-	return "IP address";
 }
