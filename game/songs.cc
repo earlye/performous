@@ -43,10 +43,11 @@ void Songs::reload_internal() {
 	}
 	Profiler prof("songloader");
 	Paths paths = getPathsConfig("paths/songs");
+        std::clog << "songs/info: paths.length:" << paths.size() << std::endl;
 	for (auto it = paths.begin(); m_loading && it != paths.end(); ++it) { //loop through stored directories from config
 		try {
-			if (!fs::is_directory(*it)) { std::clog << "songs/info: >>> Not scanning: " << *it << " (no such directory)\n"; continue; }
-			std::clog << "songs/info: >>> Scanning " << *it << std::endl;
+			std::clog << "songs/notice: >>> Scanning " << *it << std::endl;
+			if (!fs::is_directory(*it)) { std::clog << "songs/info: >>> skipping: " << *it << " (no such directory)\n"; continue; }
 			size_t count = m_songs.size();
 			reload_internal(*it);
 			size_t diff = m_songs.size() - count;
