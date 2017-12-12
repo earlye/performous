@@ -116,6 +116,7 @@ GuitarGraph::GuitarGraph(Audio& audio, Song const& song, input::DevicePtr dev, i
   m_soloScore(),
   m_solo(),
   m_hasTomTrack(false),
+  m_proMode(config["game/drum_promode"].b()),
   m_whammy(0)
 {
 	if(m_drums) {
@@ -585,8 +586,10 @@ void GuitarGraph::drumHit(double time, unsigned layer, unsigned fret) {
 		} else if (m_notes[it->dur[fret]]) continue;  // invalid fret/hit or already played
 
 		// Check Pro Mode stuff...
-		if ( fret > 1 && it->fret_cymbal[fret] && layer != 2 ) continue; // require cymbal if it's a cymbal.
-		if ( fret > 1 && !it->fret_cymbal[fret] && layer != 1 ) continue; // require not a cymbal if it's not a cymbal.
+		if ( m_proMode ) {
+			if ( fret > 1 && it->fret_cymbal[fret] && layer != 2 ) continue; // require cymbal if it's a cymbal.
+			if ( fret > 1 && !it->fret_cymbal[fret] && layer != 1 ) continue; // require not a cymbal if it's not a cymbal.
+		}
 
 		double error = std::abs(it->begin - time);
 		if (error < tolerance) {
@@ -770,9 +773,9 @@ void GuitarGraph::drawNotes(double time) {
 		}
 	}
 	if (time != time) return;  // Check that time is not NaN
-	
+
 	glmath::vec4 neckglow;  // Used for calculating the average neck color
-	
+
 	// Iterate chords
 	for (auto& chord: m_chords) {
 		float tBeg = chord.begin - time;

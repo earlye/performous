@@ -155,6 +155,6 @@ class GuitarGraph: public InstrumentGraph {
 	double m_soloScore; /// score during solo
 	bool m_solo; /// are we currently playing a solo
 	bool m_hasTomTrack; /// true if the track has at least one tom track
+	bool m_proMode; /// true if pro drums. (it would be better to split guitar/trum tracks into sep classes)
 	double m_whammy; /// whammy value for pitch shift
 };
-
