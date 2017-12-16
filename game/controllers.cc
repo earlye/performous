@@ -321,20 +321,19 @@ struct Controllers::Impl {
     return def;
   }
 
-  HWButton m_prevHw;
+  std::vector<HWButton> m_prevHw;
   void pushDrumEvent(ControllerDef const* def,Event const& event, bool sdl) {
-    std::clog << "controllers/error: " << event << " sdl:" << sdl << std::endl;
-    if ( event.hw == 4 || event.hw == 2 ) {
+    // std::clog << "controllers/error: " << event << " sdl:" << sdl << std::endl;
+    if ( event.hw == 4 ) {
       auto it = def->mapping.find(event.hw);
       if (it != def->mapping.end()) {
         Event ev = event;  // Make a copy for fiddling
-        ev.hw = m_prevHw;
         bool handled = false;
         ButtonMap const& m = it->second;
         double value = ev.value;
         unsigned val = value;
         ev.button = m.map;
-        std::clog << "controllers/error: mapped event:" << ev << std::endl;
+        //std::clog << "controllers/error: mapped event:" << ev << std::endl;
         if (pushMappedEvent(ev)) handled = true;
         ev.button = m.positive; ev.value = clamp(value); if (pushMappedEvent(ev)) handled = true;
         ev.button = m.negative; ev.value = clamp(-value); if (pushMappedEvent(ev)) handled = true;
@@ -344,34 +343,37 @@ struct Controllers::Impl {
           ev.button = m.left; ev.value = !!(val & SDL_HAT_LEFT); if (pushMappedEvent(ev)) handled = true;
           ev.button = m.right; ev.value = !!(val & SDL_HAT_RIGHT); if (pushMappedEvent(ev)) handled = true;
         }
-        m_prevHw = 0;
+        m_prevHw.clear();
         if (!handled) std::clog << "controllers/info: ignored " << event << std::endl;  // No matching attribute in controllers.xml
       }
-    } else if ( m_prevHw && (event.hw == 10 || event.hw == 11) ) {
-      auto it = def->mapping.find(m_prevHw + (event.hw * 10));
-      if (it != def->mapping.end()) {
-        Event ev = event;  // Make a copy for fiddling
-        ev.hw = m_prevHw;
-        bool handled = false;
-        ButtonMap const& m = it->second;
-        double value = ev.value;
-        unsigned val = value;
-        ev.button = m.map;
-        std::clog << "controllers/error: mapped event:" << ev << std::endl;
-        if (pushMappedEvent(ev)) handled = true;
-        ev.button = m.positive; ev.value = clamp(value); if (pushMappedEvent(ev)) handled = true;
-        ev.button = m.negative; ev.value = clamp(-value); if (pushMappedEvent(ev)) handled = true;
-        if (hwIsHat.matches(ev.hw)) {
-          ev.button = m.up; ev.value = !!(val & SDL_HAT_UP); if (pushMappedEvent(ev)) handled = true;
-          ev.button = m.down; ev.value = !!(val & SDL_HAT_DOWN); if (pushMappedEvent(ev)) handled = true;
-          ev.button = m.left; ev.value = !!(val & SDL_HAT_LEFT); if (pushMappedEvent(ev)) handled = true;
-          ev.button = m.right; ev.value = !!(val & SDL_HAT_RIGHT); if (pushMappedEvent(ev)) handled = true;
+    } else if ( m_prevHw.size() && (event.hw == 10 || event.hw == 11) ) {
+      for( auto prevHw: m_prevHw )
+        {
+          auto it = def->mapping.find(prevHw + (event.hw * 10));
+          if (it != def->mapping.end()) {
+            Event ev = event;  // Make a copy for fiddling
+            ev.hw = prevHw;
+            bool handled = false;
+            ButtonMap const& m = it->second;
+            double value = ev.value;
+            unsigned val = value;
+            ev.button = m.map;
+            //std::clog << "controllers/error: mapped event:" << ev << std::endl;
+            if (pushMappedEvent(ev)) handled = true;
+            ev.button = m.positive; ev.value = clamp(value); if (pushMappedEvent(ev)) handled = true;
+            ev.button = m.negative; ev.value = clamp(-value); if (pushMappedEvent(ev)) handled = true;
+            if (hwIsHat.matches(ev.hw)) {
+              ev.button = m.up; ev.value = !!(val & SDL_HAT_UP); if (pushMappedEvent(ev)) handled = true;
+              ev.button = m.down; ev.value = !!(val & SDL_HAT_DOWN); if (pushMappedEvent(ev)) handled = true;
+              ev.button = m.left; ev.value = !!(val & SDL_HAT_LEFT); if (pushMappedEvent(ev)) handled = true;
+              ev.button = m.right; ev.value = !!(val & SDL_HAT_RIGHT); if (pushMappedEvent(ev)) handled = true;
+            }
+            if (!handled) std::clog << "controllers/info: ignored " << event << std::endl;  // No matching attribute in controllers.xml
+          }
+          m_prevHw.clear();
         }
-        m_prevHw = 0;
-        if (!handled) std::clog << "controllers/info: ignored " << event << std::endl;  // No matching attribute in controllers.xml
-      }
     } else {
-      m_prevHw = event.hw;
+      m_prevHw.push_back( event.hw );
     }
   }
 
