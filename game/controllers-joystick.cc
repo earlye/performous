@@ -9,7 +9,7 @@ namespace input {
 			for (int id = 0; id < SDL_NumJoysticks(); ++id) {
 				JoyPtr joy(SDL_JoystickOpen(id), SDL_JoystickClose);
 				std::ostringstream oss;
-				oss << "controller-joystick/info: Opened joystick " << id << ": " << getName(id) << " ("
+				oss << "controller-joystick/error: Opened joystick " << id << ": " << getName(id) << " ("
 				  << SDL_JoystickNumButtons(joy.get()) << " buttons, "
 				  << SDL_JoystickNumAxes(joy.get()) << " axes, "
 				  << SDL_JoystickNumHats(joy.get()) << " hats, "
@@ -99,4 +99,3 @@ void init() {
 	}
 
 #endif
-

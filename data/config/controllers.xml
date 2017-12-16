@@ -276,13 +276,27 @@
 			<description>RockBand PS3 drum kit</description>
 			<device regex="Harmonix Drum [Kk]it for PlayStation" />
 			<mapping>
-				<button hw="0" map="blue" />
-				<button hw="1" map="green" />
-				<button hw="2" map="red" />
-				<button hw="3" map="yellow" />
-				<button hw="4" map="kick" />
-				<button hw="8" map="cancel" />
-				<button hw="9" map="start" />
+			  
+			  <button hw="0" map="blue" />
+			  <button hw="1" map="green" />
+			  <button hw="2" map="red" />
+			  <button hw="3" map="yellow" />
+			  <button hw="4" map="kick" />
+			  <button hw="8" map="cancel" />
+			  <button hw="9" map="start" />
+
+			  <button hw="100" map="blue_tom" />
+			  <button hw="101" map="green_tom" />
+			  <button hw="102" map="red" />
+			  <button hw="103" map="yellow_tom" />
+			  <button hw="104" map="kick" />
+
+			  <button hw="110" map="blue_cymbal" />
+			  <button hw="111" map="green_cymbal" />
+			  <button hw="112" map="red" />
+			  <button hw="113" map="yellow_cymbal" />
+			  <button hw="114" map="kick" />
+			  
 				<button hw="12" /><!-- PS button -->
 				<axis hw="4" negative="left" positive="right" />
 				<axis hw="5" negative="up" positive="down" />

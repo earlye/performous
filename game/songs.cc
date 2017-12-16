@@ -47,15 +47,15 @@ void Songs::reload_internal() {
 	}
 	Profiler prof("songloader");
 	Paths paths = getPathsConfig("paths/songs");
-        std::clog << "songs/info: paths.length:" << paths.size() << std::endl;
+        std::clog << "songs/notice: paths.length:" << paths.size() << std::endl;
 	for (auto it = paths.begin(); m_loading && it != paths.end(); ++it) { //loop through stored directories from config
 		try {
 			std::clog << "songs/notice: >>> Scanning " << *it << std::endl;
-			if (!fs::is_directory(*it)) { std::clog << "songs/info: >>> skipping: " << *it << " (no such directory)\n"; continue; }
+			if (!fs::is_directory(*it)) { std::clog << "songs/notice: >>> skipping: " << *it << " (no such directory)\n"; continue; }
 			size_t count = m_songs.size();
 			reload_internal(*it);
 			size_t diff = m_songs.size() - count;
-			if (diff > 0 && m_loading) std::clog << "songs/info: " << diff << " songs loaded\n";
+			if (diff > 0 && m_loading) std::clog << "songs/notice: " << *it << ":" << diff << " songs loaded\n";
 		} catch (std::exception& e) {
 			std::clog << "songs/error: >>> Error scanning " << *it << ": " << e.what() << '\n';
 		}
@@ -69,7 +69,8 @@ void Songs::reload_internal() {
 }
 
 void Songs::reload_internal(fs::path const& parent) {
-	if (std::distance(parent.begin(), parent.end()) > 20) { std::clog << "songs/info: >>> Not scanning: " << parent.string() << " (maximum depth reached, possibly due to cyclic symlinks)\n"; return; }
+	if (std::distance(parent.begin(), parent.end()) > 20) { std::clog << "songs/notice: >>> Not scanning: " << parent.string() << " (maximum depth reached, possibly due to cyclic symlinks)\n"; return; }
+        std::clog << "songs/notice: Scanning folder:" << parent << std::endl;
 	try {
 		boost::regex expression(R"((\.txt|^song\.ini|^notes\.xml|\.sm)$)", boost::regex_constants::icase);
 		for (fs::directory_iterator dirIt(parent), dirEnd; m_loading && dirIt != dirEnd; ++dirIt) { //loop through files
@@ -84,7 +85,7 @@ void Songs::reload_internal(fs::path const& parent) {
 				for(unsigned int i = 0; i< m_songs.size(); i++) {
 					if(s->filename.extension() != m_songs[i]->filename.extension() && s->filename.stem() == m_songs[i]->filename.stem() &&
 							s->title == m_songs[i]->title && s->artist == m_songs[i]->artist) {
-						std::clog << "songs/info: >>> Found additional song file: " << s->filename << " for: " << m_songs[i]->filename << std::endl;
+						std::clog << "songs/notice: >>> Found additional song file: " << s->filename << " for: " << m_songs[i]->filename << std::endl;
 						AdditionalFileIndex = i;
 					}
 				}
@@ -331,4 +332,3 @@ void Songs::dumpSongs_internal() const {
 	fs::create_directories(coverpath);
 	dumpXML(svec, m_songlist + "/songlist.xml");
 }
-

@@ -103,7 +103,7 @@ SongParser::SongParser(Song& s) try:
 void SongParser::guessFiles() {
 	// List of fields containing filenames, and auto-matching regexps, in order of priority
 	const std::vector<std::pair<fs::path*, char const*>> fields = {
-		{ &m_song.cover, R"((cover|album|label|banner|bn|\[co\])\.(png|jpeg|jpg|svg)$)" },
+		{ &m_song.cover, R"((cover|album|label|bn|\[co\])\.(png|jpeg|jpg|svg)$)" },
 		{ &m_song.background, R"((background|bg|\[bg\])\.(png|jpeg|jpg|svg)$)" },
 		{ &m_song.cover, R"(\.(png|jpeg|jpg|svg)$)" },
 		{ &m_song.background, R"(\.(png|jpeg|jpg|svg)$)" },
@@ -123,7 +123,7 @@ void SongParser::guessFiles() {
 	};
 
 	std::string logMissing, logFound;
-	
+
 	// Run checks, remove bogus values and construct regexps
 	std::vector<boost::regex> regexps;
 	bool missing = false;
