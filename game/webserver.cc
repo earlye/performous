@@ -347,8 +347,4 @@ boost::shared_ptr<Song> WebServer::GetSongFromJSON(std::string JsonDoc) {
 
 	return boost::shared_ptr<Song>();
 }
-#else
-WebServer::WebServer(Songs& songs)
-	: m_songs(songs) {}
-WebServer::~WebServer(){}
 #endif

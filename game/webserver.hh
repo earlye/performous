@@ -60,6 +60,6 @@ class Songs;
 class WebServer
 {
 public:
-	WebServer(Songs&) {}
+  WebServer(Songs&) { }
 };
 #endif

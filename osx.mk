@@ -34,7 +34,7 @@ clean:
 run: all
 	build/performous
 
-.dependencies: .install-cmake .install-libsdl2 .install-help2man .install-libepoxy .install-cairo .install-librsvg .install-portaudio .install-portmidi .install-opencv .install-dylibbundler .install-libxml++ .install-jsoncpp .install-openssl .install-libressl .install-boost .install-cppnetlib
+.dependencies: .install-cmake .install-libsdl2 .install-help2man .install-libepoxy .install-cairo .install-librsvg .install-portaudio .install-portmidi .install-opencv .install-dylibbundler .install-libxml++ .install-jsoncpp .install-openssl .install-libressl .install-boost #.install-cppnetlib
 	touch $@
 
 .install-cppnetlib:
