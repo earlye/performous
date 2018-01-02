@@ -69,7 +69,8 @@ void Songs::reload_internal() {
 }
 
 void Songs::reload_internal(fs::path const& parent) {
-	if (std::distance(parent.begin(), parent.end()) > 20) { std::clog << "songs/info: >>> Not scanning: " << parent.string() << " (maximum depth reached, possibly due to cyclic symlinks)\n"; return; }
+	if (std::distance(parent.begin(), parent.end()) > 20)
+          { std::clog << "songs/info: >>> Not scanning: " << parent.string() << " (maximum depth reached, possibly due to cyclic symlinks)\n"; return; }
 	try {
 		boost::regex expression(R"((\.txt|^song\.ini|^notes\.xml|\.sm)$)", boost::regex_constants::icase);
 		for (fs::directory_iterator dirIt(parent), dirEnd; m_loading && dirIt != dirEnd; ++dirIt) { //loop through files
@@ -331,4 +332,3 @@ void Songs::dumpSongs_internal() const {
 	fs::create_directories(coverpath);
 	dumpXML(svec, m_songlist + "/songlist.xml");
 }
-

@@ -34,7 +34,7 @@ clean:
 run: all
 	build/performous
 
-.dependencies: .install-cmake .install-libsdl2 .install-help2man .install-libepoxy .install-cairo .install-librsvg .install-portaudio .install-portmidi .install-opencv .install-dylibbundler .install-libxml++ .install-jsoncpp .install-openssl .install-libressl .install-boost #.install-cppnetlib
+.dependencies: .install-cmake .install-libsdl2 .install-help2man .install-libepoxy .install-cairo .install-librsvg .install-portaudio .install-portmidi .install-opencv .install-dylibbundler .install-libxml++ .install-jsoncpp .install-openssl .install-libressl .install-boost .install-libcurl #.install-cppnetlib
 	touch $@
 
 .install-cppnetlib:
@@ -45,6 +45,11 @@ run: all
 .install-boost:
 	echo $@
 	if brew ls --versions boost > /dev/null; then echo "boost is installed" ; else brew install boost; fi
+	touch $@
+
+.install-libcurl:
+	echo $@
+	if brew ls --versions libcurl > /dev/null; then echo "libcurl is installed" ; else brew install curl; fi
 	touch $@
 
 .install-libressl:

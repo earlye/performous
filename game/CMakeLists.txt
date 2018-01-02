@@ -141,7 +141,7 @@ endif(APPLE)
 if(UNIX)
 	# Note: cannot use list APPEND here because it inserts semicolons instead of spaces
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pthread -lcurl")
 endif(UNIX)
 
 if(WIN32)

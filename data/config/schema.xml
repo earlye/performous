@@ -38,7 +38,13 @@ to save the current settings to XML.
 		</entry>
 	</menu>
 
+	
 	<!-- Gameplay preferences -->
+	<entry name="game/song-server" type="string">
+	  <short>Song Server</short>
+	  <long>Address of song server</long>
+	  <stringvalue>http://courage.lan:6969/</stringvalue>
+	</entry>
 	<entry name="game/karaoke_mode" type="int" value="0">
 		<limits>
 			<enum>Off</enum>
