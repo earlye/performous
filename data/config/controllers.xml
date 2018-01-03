@@ -291,16 +291,18 @@
 			  <button hw="103" map="yellow_tom" />
 			  <button hw="104" map="kick" />
 
-			  <button hw="110" map="blue_cymbal" />
+			  <!--button hw="110" map="blue_cymbal" /-->
 			  <button hw="111" map="green_cymbal" />
 			  <button hw="112" map="red" />
-			  <button hw="113" map="yellow_cymbal" />
+			  <!-- button hw="113" map="yellow_cymbal" /-->
 			  <button hw="114" map="kick" />
+
+			  <hat hw="0" up="yellow_cymbal" down="blue_cymbal"/>
 			  
 				<button hw="12" /><!-- PS button -->
 				<axis hw="4" negative="left" positive="right" />
 				<axis hw="5" negative="up" positive="down" />
-				<hat hw="0" up="up" down="down" left="left" right="right" />
+				<!--hat hw="0" up="up" down="down" left="left" right="right" /-->
 			</mapping>
 		</controller>
 		<controller type="drumkit" name="DRUMS_ROCKBAND_XBOX360">

@@ -42,7 +42,8 @@ ScreenSing::ScreenSing(std::string const& name, Audio& audio, Database& database
 
 void ScreenSing::enter() {
 	keyPressed = false;
-	m_DuetTimeout.setValue(10);
+        m_noFail = config["game/nofail"].b();
+        m_DuetTimeout.setValue(10);
 	Game* gm = Game::getSingletonPtr();
 	// Initialize webcam
 	gm->loading(_("Initializing webcam..."), 0.1);
@@ -176,11 +177,12 @@ void ScreenSing::instrumentLayout(double time) {
 	if (!m_song->hasControllers()) return;
 	int count_alive = 0, count_menu = 0, i = 0;
 	// Remove dead instruments and do the counting
+        // Why is this in ScreenSing? Counterintuitive AF.
 	for (Instruments::iterator it = m_instruments.begin(); it != m_instruments.end(); ) {
-		if (it->dead()) {
-			it = m_instruments.erase(it);
-			continue;
-		}
+          if (it->dead() && !m_noFail) {
+            it = m_instruments.erase(it);
+            continue;
+          }
 		++count_alive;
 		if (it->menuOpen()) ++count_menu;
 		++it;
@@ -217,11 +219,11 @@ void ScreenSing::instrumentLayout(double time) {
 		std::string const& name = track.first;
 		std::string locName = _(name.c_str());  // FIXME: There should NOT be gettext calls here!
 		double level = 1.0;
-		if (volume.find(locName) != volume.end()) {
+                /*		if (volume.find(locName) != volume.end()) {
 			CountSum cs = volume[locName];
 			if (cs.first > 0) level = cs.second / cs.first;
 			if (m_song->music.size() <= 1) level = std::max(0.333, level);
-		}
+                        }*/
 		m_audio.streamFade(name, level);
 		if (pitchbend.find(locName) != pitchbend.end()) {
 			CountSum cs = pitchbend[locName];
@@ -458,7 +460,7 @@ bool ScreenSing::devCanParticipate(input::DevType const& devType) const {
 	if (devType == input::DEVTYPE_DANCEPAD && m_song->hasDance()) return true;
 	if (devType == input::DEVTYPE_GUITAR && m_song->hasGuitars()) return true;
 	if (devType == input::DEVTYPE_DRUMS && m_song->hasDrums()) return true;
-	return false;	
+	return false;
 }
 
 

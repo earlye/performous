@@ -62,13 +62,13 @@ namespace {
     throw std::logic_error("Invalid Button value in controllers.cc buttonDebug");
   }
   std::ostream& operator<<(std::ostream& os, Event const& ev) {
-    os << ev.source << ' ';
+    os << ev.source << ' ' << ev.time.sec << ',' << ev.time.nsec;
     // Print hw button info if the event is not assigned to a function, otherwise print assignments
     if (ev.button == GENERIC_UNASSIGNED) {
       if (hwIsAxis.matches(ev.hw)) {
-        os << "axis hw=" << ev.hw - hwIsAxis.min << " value=" << ev.value;
+        os << "axis hw=" << ev.hw - hwIsAxis.min << "[" << ev.hw << "] value=" << ev.value;
       } else if (hwIsHat.matches(ev.hw)) {
-        os << "hat hw=" << ev.hw - hwIsHat.min << ' ';
+        os << "hat hw=" << ev.hw - hwIsHat.min << "[" << ev.hw << "] ";
         std::string dir;
         unsigned val = ev.value;
         if (val & SDL_HAT_UP) dir += "up";
@@ -322,6 +322,38 @@ struct Controllers::Impl {
   }
 
   std::vector<HWButton> m_prevHw;
+  int hw = 0;
+#if 1
+  void pushDrumEvent(ControllerDef const* def,Event const& event, bool sdl) {
+    std::clog << "controllers/error: drumEvent:" << event << " sdl:" << sdl << std::endl;
+    if ( event.hw == 4 ) {
+      auto it = def->mapping.find(event.hw);
+      if (it != def->mapping.end()) {
+        Event ev = event;  // Make a copy for fiddling
+        bool handled = false;
+        ButtonMap const& m = it->second;
+        double value = ev.value;
+        unsigned val = value;
+        ev.button = m.map;
+        pushMappedEvent(ev);
+      }
+    } else if ( event.hw == 10 || event.hw == 11 ) {
+      hw = event.hw;
+    } else {
+      auto it = def->mapping.find(event.hw + (hw * 10));
+      if (it != def->mapping.end()) {
+        Event ev = event;  // Make a copy for fiddling
+        bool handled = false;
+        ButtonMap const& m = it->second;
+        double value = ev.value;
+        unsigned val = value;
+        ev.button = m.map;
+        std::clog << "controllers/error: event: " << event << " mapped event:" << ev << std::endl;
+        pushMappedEvent(ev);
+      }
+    }
+  }
+#else
   void pushDrumEvent(ControllerDef const* def,Event const& event, bool sdl) {
     // std::clog << "controllers/error: " << event << " sdl:" << sdl << std::endl;
     if ( event.hw == 4 ) {
@@ -376,6 +408,7 @@ struct Controllers::Impl {
       m_prevHw.push_back( event.hw );
     }
   }
+#endif
 
   /// Handle an incoming hardware event
   void pushHWEvent(Event event, bool sdl) {
@@ -413,6 +446,7 @@ struct Controllers::Impl {
     }
   }
   bool pushMappedEvent(Event& ev) {
+    std::clog << "controllers/error: mappedEvent:" << ev << std::endl;
     if (ev.button == GENERIC_UNASSIGNED) return false;
     if (!valueChanged(ev)) return false;  // Avoid repeated or other useless events
     //std::clog << "controllers/error: processing " << ev << std::endl;

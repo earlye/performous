@@ -39,6 +39,10 @@ to save the current settings to XML.
 	</menu>
 
 	<!-- Gameplay preferences -->
+	<entry name="game/nofail" type="bool" value="true">
+		<short>No Fail Mode</short>
+		<long>If enabled, you cannot fail out.</long>
+	</entry>
 	<entry name="game/karaoke_mode" type="int" value="0">
 		<limits>
 			<enum>Off</enum>
