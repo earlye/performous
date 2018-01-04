@@ -6,7 +6,11 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/smart_ptr/weak_ptr.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmismatched-tags"
+#pragma GCC diagnostic ignored "-Winconsistent-missing-override"
 #include <libxml++/libxml++.h>
+#pragma GCC diagnostic pop
 #include <SDL2/SDL_joystick.h>
 #include <deque>
 #include <stdexcept>
@@ -62,7 +66,7 @@ namespace {
     throw std::logic_error("Invalid Button value in controllers.cc buttonDebug");
   }
   std::ostream& operator<<(std::ostream& os, Event const& ev) {
-    os << ev.source << ' ' << ev.time.sec << ',' << ev.time.nsec;
+    os << ev.source << ' ' << ev.time.sec << ',' << ev.time.nsec << ':';
     // Print hw button info if the event is not assigned to a function, otherwise print assignments
     if (ev.button == GENERIC_UNASSIGNED) {
       if (hwIsAxis.matches(ev.hw)) {
@@ -322,37 +326,70 @@ struct Controllers::Impl {
   }
 
   std::vector<HWButton> m_prevHw;
-  int hw = 0;
+  int hw = 10;
 #if 1
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
   void pushDrumEvent(ControllerDef const* def,Event const& event, bool sdl) {
-    std::clog << "controllers/error: drumEvent:" << event << " sdl:" << sdl << std::endl;
     if ( event.hw == 4 ) {
-      auto it = def->mapping.find(event.hw);
-      if (it != def->mapping.end()) {
-        Event ev = event;  // Make a copy for fiddling
-        bool handled = false;
-        ButtonMap const& m = it->second;
-        double value = ev.value;
-        unsigned val = value;
-        ev.button = m.map;
-        pushMappedEvent(ev);
-      }
+      Event ev = event;  // Make a copy for fiddling
+      ev.button = input::DRUMS_KICK;
+      pushMappedEvent(ev);
+    } else if ( event.hw == 2 ) {
+      Event ev = event;  // Make a copy for fiddling
+      ev.button = input::DRUMS_RED;
+      pushMappedEvent(ev);
     } else if ( event.hw == 10 || event.hw == 11 ) {
       hw = event.hw;
-    } else {
-      auto it = def->mapping.find(event.hw + (hw * 10));
-      if (it != def->mapping.end()) {
-        Event ev = event;  // Make a copy for fiddling
-        bool handled = false;
-        ButtonMap const& m = it->second;
-        double value = ev.value;
-        unsigned val = value;
-        ev.button = m.map;
-        std::clog << "controllers/error: event: " << event << " mapped event:" << ev << std::endl;
+    } else if ( hwIsHat.matches(event.hw) ) {
+      if ((unsigned)event.value & SDL_HAT_UP) {
+        Event ev = event;
+        ev.button = input::DRUMS_YELLOW_CYMBAL;
+        ev.hw = 0;
+        ev.value = 1;
         pushMappedEvent(ev);
+        ev.value = 0;
+        pushMappedEvent(ev);
+      } else if ((unsigned)event.value & SDL_HAT_DOWN) {
+        Event ev = event;
+        ev.button = input::DRUMS_BLUE_CYMBAL;
+        ev.hw = 0;
+        ev.value = 1;
+        pushMappedEvent(ev);
+        ev.value = 0;
+        pushMappedEvent(ev);
+      } else {
+        std::clog << "controllers/error: drumEvent:" << event << " last-hw:" << hw << " sdl:" << sdl << std::endl;
       }
+    } else if (event.value && event.hw == 3 && ( hw == 10 )) {
+      Event ev = event;  // Make a copy for fiddling
+      ev.button = input::DRUMS_YELLOW_TOM;
+      pushMappedEvent(ev);
+      ev.value = 0;
+      pushMappedEvent(ev);
+    } else if (event.value && event.hw == 0 && ( hw == 10 )) {
+      Event ev = event;  // Make a copy for fiddling
+      ev.button = input::DRUMS_BLUE_TOM;
+      pushMappedEvent(ev);
+      ev.value = 0;
+      pushMappedEvent(ev);
+    } else if (event.value && event.hw == 1 && ( hw == 10 )) {
+      Event ev = event;  // Make a copy for fiddling
+      ev.button = input::DRUMS_GREEN_TOM;
+      pushMappedEvent(ev);
+      ev.value = 0;
+      pushMappedEvent(ev);
+    } else if (event.value && event.hw == 1 && ( hw == 11 )) {
+      Event ev = event;  // Make a copy for fiddling
+      ev.button = input::DRUMS_GREEN_CYMBAL;
+      pushMappedEvent(ev);
+      ev.value = 0;
+      pushMappedEvent(ev);
+    } else {
+      std::clog << "controllers/error: drumEvent:" << event << " last-hw:" << hw << " sdl:" << sdl << std::endl;
     }
   }
+#pragma GCC diagnostic pop
 #else
   void pushDrumEvent(ControllerDef const* def,Event const& event, bool sdl) {
     // std::clog << "controllers/error: " << event << " sdl:" << sdl << std::endl;
