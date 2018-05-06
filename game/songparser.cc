@@ -155,10 +155,10 @@ void SongParser::guessFiles() {
 	m_song.music[TrackName::PREVIEW].clear();  // We don't currently support preview tracks (TODO: proper handling in audio.cc).
 
 	if (logFound.empty() && logMissing.empty()) return;
-	std::clog << "songparser/" << (logMissing.empty() ? "debug" : "notice") << ": " + m_song.filename.string() + ":\n";
-	if (!logMissing.empty()) std::clog << "  Not found:    " + logMissing + "\n";
-	if (!logFound.empty()) std::clog << "  Autodetected: " + logFound + "\n";
-	std::clog << std::flush;
+        //	std::clog << "songparser/" << (logMissing.empty() ? "debug" : "notice") << ": " + m_song.filename.string() + ":\n";
+        //	if (!logMissing.empty()) std::clog << "  Not found:    " + logMissing + "\n";
+        //	if (!logFound.empty()) std::clog << "  Autodetected: " + logFound + "\n";
+        //	std::clog << std::flush;
 
 }
 

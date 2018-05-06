@@ -432,7 +432,8 @@ struct Audio::Impl {
 	std::string selectedBackend = Audio::backendConfig().getValue();
 	Impl(): init(), playback() {
 	populateBackends(portaudio::AudioBackends().getBackends());
-	std::clog << portaudio::AudioBackends().dump() << std::flush; // Dump PortAudio backends and devices to log.
+	std::clog << "audio/error:" << portaudio::AudioBackends().dump() << std::flush; // Dump PortAudio backends and devices to log.
+
 		// Parse audio devices from config
 		ConfigItem::StringList devs = config["audio/devices"].sl();
 		for (ConfigItem::StringList::const_iterator it = devs.begin(), end = devs.end(); it != end; ++it) {
@@ -469,7 +470,7 @@ struct Audio::Impl {
 				else params.mics.resize(params.in);
 				portaudio::AudioDevices ad(PaHostApiTypeId(PaHostApiNameToHostApiTypeId(selectedBackend)));
 				auto const& info = ad.find(params.dev);
-				std::clog << "audio/info: Trying audio device \"" << params.dev << "\", idx: " << info.idx
+				std::clog << "audio/error: Trying audio device \"" << params.dev << "\", idx: " << info.idx
 					<< ", in: " << params.in << ", out: " << params.out << std::endl;
 				if (info.in < int(params.mics.size())) throw std::runtime_error("Device doesn't have enough input channels");
 				if (info.out < int(params.out)) throw std::runtime_error("Device doesn't have enough output channels");

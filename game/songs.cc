@@ -69,7 +69,8 @@ void Songs::reload_internal() {
 }
 
 void Songs::reload_internal(fs::path const& parent) {
-	if (std::distance(parent.begin(), parent.end()) > 20) { std::clog << "songs/notice: >>> Not scanning: " << parent.string() << " (maximum depth reached, possibly due to cyclic symlinks)\n"; return; }
+	if (std::distance(parent.begin(), parent.end()) > 20)
+          { std::clog << "songs/warn: >>> Not scanning: " << parent.string() << " (maximum depth reached, possibly due to cyclic symlinks)\n"; return; }
         std::clog << "songs/notice: Scanning folder:" << parent << std::endl;
 	try {
 		boost::regex expression(R"((\.txt|^song\.ini|^notes\.xml|\.sm)$)", boost::regex_constants::icase);
@@ -155,13 +156,14 @@ void Songs::filter_internal() {
 		SongVector filtered;
 		for (SongVector::const_iterator it = m_songs.begin(); it != m_songs.end(); ++it) {
 			Song& s = **it;
-			// All, Dance, Vocals, Duet, Guitar, Band
+			// All, Dance, Vocals, Duet, Guitar, Band, No Drums
 			if (m_type == 1 && !s.hasDance()) continue;
 			if (m_type == 2 && !s.hasVocals()) continue;
 			if (m_type == 3 && !s.hasDuet()) continue;
 			if (m_type == 4 && !s.hasGuitars()) continue;
 			if (m_type == 5 && !s.hasDrums() && !s.hasKeyboard()) continue;
 			if (m_type == 6 && (!s.hasVocals() || !s.hasGuitars() || (!s.hasDrums() && !s.hasKeyboard()))) continue;
+			if (m_type == 7 && s.hasDrums()) continue;
 			if (regex_search(s.strFull(), boost::regex(m_filter, boost::regex_constants::icase))) filtered.push_back(*it);
 		}
 		m_filtered.swap(filtered);
@@ -192,7 +194,7 @@ namespace {
 	/// A helper for easily constructing CmpByField objects
 	template <typename T> CmpByField<T> customComparator(T Song::*field) { return CmpByField<T>(field); }
 
-	static const int types = 7, orders = 7;
+	static const int types = 8, orders = 7;
 
 }
 
@@ -205,6 +207,7 @@ std::string Songs::typeDesc() const {
 		case 4: return _("has guitar");
 		case 5: return _("drums or keytar");
 		case 6: return _("full band");
+		case 7: return _("no drums");
 	}
 	throw std::logic_error("Internal error: unknown type filter in Songs::typeDesc");
 }

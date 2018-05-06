@@ -38,10 +38,16 @@ to save the current settings to XML.
 		</entry>
 	</menu>
 
+	
 	<!-- Gameplay preferences -->
 	<entry name="game/nofail" type="bool" value="true">
 		<short>No Fail Mode</short>
 		<long>If enabled, you cannot fail out.</long>
+	</entry>
+	<entry name="game/song-server" type="string">
+	  <short>Song Server</short>
+	  <long>Address of song server</long>
+	  <stringvalue>http://courage.lan:6969/</stringvalue>
 	</entry>
 	<entry name="game/karaoke_mode" type="int" value="0">
 		<limits>
@@ -323,6 +329,7 @@ to save the current settings to XML.
 		<stringvalue>/usr/share/games/ultrastar/songs/</stringvalue>
 		<stringvalue>/usr/share/games/fretsonfire/data/songs/</stringvalue>
 		<stringvalue>~/.ultrastar/songs/</stringvalue>
+		<stringvalue>~/.performous/songs/</stringvalue>
 		<short>Song folders</short>
 		<long>Where to recursively look for songs. DATADIR at the beginning means all Performous data folders.</long>
 	</entry>

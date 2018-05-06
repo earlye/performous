@@ -11,6 +11,7 @@ Theme::Theme(fs::path const& path) : bg(path)
 ThemeSongs::ThemeSongs():
 	Theme(findFile("songs_bg.svg")),
 	song(findFile("songs_song.svg"), config["graphic/text_lod"].f()),
+	path(findFile("songs_path.svg"), config["graphic/text_lod"].f()),
 	order(findFile("songs_order.svg"), config["graphic/text_lod"].f()),
 	has_hiscore(findFile("songs_has_hiscore.svg"), config["graphic/text_lod"].f()),
 	hiscores(findFile("songs_hiscores.svg"), config["graphic/text_lod"].f())

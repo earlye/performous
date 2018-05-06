@@ -142,6 +142,29 @@ void ScreenSongs::manageEvent(input::NavEvent const& event) {
 	}
 }
 
+void ScreenSongs::moveSongToNoDrums() {
+  Song const& song = m_songs.current();
+  std::string source = song.path.string();
+  std::string subpath = "/.performous/songs/";
+  std::string::size_type location = source.find(subpath);
+  if ( location == std::string::npos ) {
+    std::clog << "error: song not in standard path." << std::endl;;
+    return;
+  }
+  std::string target = source;
+  target.replace(location, subpath.length(), "/.performous/songs-no-drums/");
+
+  fs::path targetPath(target);
+  fs::path targetParent = targetPath.parent_path();
+  std::clog << "moveToNoDrums/notice: source path:" << source << std::endl;
+  std::clog << "moveToNoDrums/notice: create directories:" << targetParent << std::endl;
+  fs::create_directories(targetParent);
+  std::clog << "moveToNoDrums/notice: rename:" << target << std::endl;
+  fs::rename(song.path,targetPath);
+  std::clog << "moveToNoDrums/notice: done." << std::endl;
+  menuBrowse(1);
+}
+
 void ScreenSongs::manageEvent(SDL_Event event) {
 	// Handle less common, keyboard only keys
 	if (event.type == SDL_TEXTINPUT) {
@@ -164,6 +187,7 @@ void ScreenSongs::manageEvent(SDL_Event event) {
 				}
 			// Shortcut keys for accessing different type filter modes
 			if (key == SDL_SCANCODE_TAB) m_songs.sortChange(1);
+			// if (key == SDL_SCANCODE_F2) moveSongToNoDrums();
 			if (key == SDL_SCANCODE_F5) m_songs.typeCycle(2);
 			if (key == SDL_SCANCODE_F6) m_songs.typeCycle(3);
 			if (key == SDL_SCANCODE_F7) m_songs.typeCycle(4);
@@ -292,7 +316,7 @@ void ScreenSongs::drawMultimedia() {
 void ScreenSongs::draw() {
 	update();
 	drawMultimedia();
-	std::ostringstream oss_song, oss_order, oss_hiscore;
+	std::ostringstream oss_song, oss_order, oss_hiscore, oss_path;
 	// Test if there are no songs
 	if (m_songs.empty()) {
 		// Format the song information text
@@ -310,6 +334,7 @@ void ScreenSongs::draw() {
 		Song& song = m_songs.current();
 		// Format the song information text
 		oss_song << song.artist << ": " << song.title;
+                oss_path << song.path;
 		// Get hiscores from database
 		m_database.queryPerSongHiscore(oss_hiscore, m_songs.currentPtr());
 		// Escaped bytes of UTF-8 must be used here for compatibility with Windows (MSVC, mingw)
@@ -341,6 +366,7 @@ void ScreenSongs::draw() {
 		// Draw song and order texts
 		theme->song.draw(oss_song.str());
 		theme->order.draw(oss_order.str());
+                theme->path.draw(oss_path.str());
 		drawInstruments(Dimensions(1.0).fixedHeight(0.09).right(0.45).screenTop(0.02));
 		theme->hiscores.draw(oss_hiscore.str());
 	}

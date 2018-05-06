@@ -11,6 +11,7 @@
 #include "profiler.hh"
 #include "screen.hh"
 #include "songs.hh"
+#include "RemoteSongs.hh"
 #include "video_driver.hh"
 #include "webcam.hh"
 #include "xtime.hh"
@@ -149,6 +150,7 @@ void mainLoop(std::string const& songlist) {
 	Backgrounds backgrounds;
 	Database database(getConfigDir() / "database.xml");
 	Songs songs(database, songlist);
+        RemoteSongs remoteSongs;
 	loadFonts();
 	Game gm(window);
 	WebServer server(songs);
