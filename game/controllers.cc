@@ -330,6 +330,7 @@ struct Controllers::Impl {
 #if 1
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
+  int down[4] = {0};
   void pushDrumEvent(ControllerDef const* def,Event const& event, bool sdl) {
     if ( event.hw == 4 ) {
       Event ev = event;  // Make a copy for fiddling
@@ -339,8 +340,6 @@ struct Controllers::Impl {
       Event ev = event;  // Make a copy for fiddling
       ev.button = input::DRUMS_RED;
       pushMappedEvent(ev);
-    } else if ( event.hw == 10 || event.hw == 11 ) {
-      hw = event.hw;
     } else if ( hwIsHat.matches(event.hw) ) {
       if ((unsigned)event.value & SDL_HAT_UP) {
         Event ev = event;
@@ -350,6 +349,7 @@ struct Controllers::Impl {
         pushMappedEvent(ev);
         ev.value = 0;
         pushMappedEvent(ev);
+        down[3] = 0;
       } else if ((unsigned)event.value & SDL_HAT_DOWN) {
         Event ev = event;
         ev.button = input::DRUMS_BLUE_CYMBAL;
@@ -358,33 +358,50 @@ struct Controllers::Impl {
         pushMappedEvent(ev);
         ev.value = 0;
         pushMappedEvent(ev);
+        down[0] = 0;
       } else {
-        std::clog << "controllers/error: drumEvent:" << event << " last-hw:" << hw << " sdl:" << sdl << std::endl;
+        //std::clog << "controllers/error: drumEvent:" << event << " last-hw:" << hw << " sdl:" << sdl << std::endl;
       }
-    } else if (event.value && event.hw == 3 && ( hw == 10 )) {
-      Event ev = event;  // Make a copy for fiddling
-      ev.button = input::DRUMS_YELLOW_TOM;
-      pushMappedEvent(ev);
-      ev.value = 0;
-      pushMappedEvent(ev);
-    } else if (event.value && event.hw == 0 && ( hw == 10 )) {
-      Event ev = event;  // Make a copy for fiddling
-      ev.button = input::DRUMS_BLUE_TOM;
-      pushMappedEvent(ev);
-      ev.value = 0;
-      pushMappedEvent(ev);
-    } else if (event.value && event.hw == 1 && ( hw == 10 )) {
-      Event ev = event;  // Make a copy for fiddling
-      ev.button = input::DRUMS_GREEN_TOM;
-      pushMappedEvent(ev);
-      ev.value = 0;
-      pushMappedEvent(ev);
-    } else if (event.value && event.hw == 1 && ( hw == 11 )) {
-      Event ev = event;  // Make a copy for fiddling
-      ev.button = input::DRUMS_GREEN_CYMBAL;
-      pushMappedEvent(ev);
-      ev.value = 0;
-      pushMappedEvent(ev);
+    } else if (event.value && ( event.hw == 0 || event.hw == 1 || event.hw == 3 ) ) {
+      //std::clog << "controllers/error: down: " << event.hw << std::endl;
+      down[event.hw] = 1;
+    } else if (!event.value && ( event.hw == 0 || event.hw == 1 || event.hw == 3 ) ) {
+    } else if (event.hw == 10 ) {
+      //std::clog << "controllers/error: tom: " << event.hw << std::endl;
+      if ( down[3] ) {
+        Event ev = event;  // Make a copy for fiddling
+        ev.button = input::DRUMS_YELLOW_TOM;
+        pushMappedEvent(ev);
+        ev.value = 0;
+        pushMappedEvent(ev);
+        down[3] = 0;
+      }
+      if ( down[0] ) {
+        Event ev = event;  // Make a copy for fiddling
+        ev.button = input::DRUMS_BLUE_TOM;
+        pushMappedEvent(ev);
+        ev.value = 0;
+        pushMappedEvent(ev);
+        down[0] = 0;
+      }
+      if ( down[1] ) {
+        Event ev = event;  // Make a copy for fiddling
+        ev.button = input::DRUMS_GREEN_TOM;
+        pushMappedEvent(ev);
+        ev.value = 0;
+        pushMappedEvent(ev);
+        down[1] = 0;
+      }
+    } else if (event.hw == 11) {
+      if ( down[1] ) {
+        //std::clog << "controllers/error: crash: " << event.hw << std::endl;
+        Event ev = event;  // Make a copy for fiddling
+        ev.button = input::DRUMS_GREEN_CYMBAL;
+        pushMappedEvent(ev);
+        ev.value = 0;
+        pushMappedEvent(ev);
+        down[0] = down[1] = down[3] = 0;
+      }
     } else {
       std::clog << "controllers/error: drumEvent:" << event << " last-hw:" << hw << " sdl:" << sdl << std::endl;
     }

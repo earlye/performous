@@ -47,7 +47,7 @@ void Songs::reload_internal() {
 	}
 	Profiler prof("songloader");
 	Paths paths = getPathsConfig("paths/songs");
-        std::clog << "songs/notice: paths.length:" << paths.size() << std::endl;
+        //std::clog << "songs/notice: paths.length:" << paths.size() << std::endl;
 	for (auto it = paths.begin(); m_loading && it != paths.end(); ++it) { //loop through stored directories from config
 		try {
 			std::clog << "songs/notice: >>> Scanning " << *it << std::endl;
@@ -55,7 +55,7 @@ void Songs::reload_internal() {
 			size_t count = m_songs.size();
 			reload_internal(*it);
 			size_t diff = m_songs.size() - count;
-			if (diff > 0 && m_loading) std::clog << "songs/notice: " << *it << ":" << diff << " songs loaded\n";
+			//if (diff > 0 && m_loading) std::clog << "songs/notice: " << *it << ":" << diff << " songs loaded\n";
 		} catch (std::exception& e) {
 			std::clog << "songs/error: >>> Error scanning " << *it << ": " << e.what() << '\n';
 		}
@@ -85,12 +85,12 @@ void Songs::reload_internal(fs::path const& parent) {
 				for(unsigned int i = 0; i< m_songs.size(); i++) {
 					if(s->filename.extension() != m_songs[i]->filename.extension() && s->filename.stem() == m_songs[i]->filename.stem() &&
 							s->title == m_songs[i]->title && s->artist == m_songs[i]->artist) {
-						std::clog << "songs/notice: >>> Found additional song file: " << s->filename << " for: " << m_songs[i]->filename << std::endl;
+                                          //std::clog << "songs/notice: >>> Found additional song file: " << s->filename << " for: " << m_songs[i]->filename << std::endl;
 						AdditionalFileIndex = i;
 					}
 				}
 				if(AdditionalFileIndex > 0) { //TODO: add it to existing song
-					std::clog << "songs/info: >>> not yet implemented " << std::endl;
+                                        std::clog << "songs/info: >>> not yet implemented " << std::endl;
 					s->getDurationSeconds();
 					m_songs.push_back(s); // will make it appear double!!
 				} else {
