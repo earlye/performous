@@ -34,6 +34,9 @@ clean:
 run: all
 	build/performous
 
+debug: all
+	build/performous --log debug
+
 .dependencies: .install-cmake .install-libsdl2 .install-help2man .install-libepoxy .install-cairo .install-librsvg .install-portaudio .install-portmidi .install-opencv .install-dylibbundler .install-libxml++ .install-jsoncpp .install-openssl .install-libressl .install-boost .install-libcurl #.install-cppnetlib
 	touch $@
 

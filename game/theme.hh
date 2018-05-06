@@ -22,6 +22,7 @@ public:
 	ThemeSongs();
 	/// song display
 	SvgTxtTheme song;
+	SvgTxtTheme path;
 	/// ordering display
 	SvgTxtTheme order;
 	/// has hiscore display

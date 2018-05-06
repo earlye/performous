@@ -49,6 +49,7 @@ private:
 	bool addSong(); ///< Add current song to playlist. Returns true if the playlist was empty.
 	void sing(); ///< Enter singing screen with current playlist.
 	void createPlaylistMenu();
+  void moveSongToNoDrums();
 
 	Audio& m_audio;
 	Songs& m_songs;
